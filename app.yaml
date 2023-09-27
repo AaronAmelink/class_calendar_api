@@ -1,0 +1,3 @@
+runtime: nodejs16 # or another supported version
+service: classcalendar-api
+instance_class: F1
