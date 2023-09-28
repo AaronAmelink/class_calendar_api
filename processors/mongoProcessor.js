@@ -72,6 +72,24 @@ class mongoProcessor {
             return null;
         }
     }
+
+    async createEntryByID(Collection, body) {
+        try{
+            console.log(body);
+            let conn = await this.connect();
+            let db = conn.db(dbName);
+            let coll = db.collection(Collection);
+            // body must be json object
+            let result = await coll.insertOne(body);
+            await this.closeConnection();
+            console.log(body);
+            return result;
+        }
+        catch (e){
+            console.log(e);
+            return null;
+        }
+    }
 }
 
 
