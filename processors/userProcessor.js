@@ -29,8 +29,8 @@ class userProcessor{
             }
             else{
                 console.log("user data not in cache.... adding");
-                let id = new ObjectId(id);
-                let mongoResult = await mp.getEntryByID("UserDataSampleSet", id);
+                let oId = new ObjectId(id);
+                let mongoResult = await mp.getEntryByID("UserDataSampleSet", oId);
                 await cache.setCacheEntry('', id, mongoResult);
                 return mongoResult;
             }

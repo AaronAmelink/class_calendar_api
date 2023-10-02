@@ -9,6 +9,7 @@ class mongoProcessor {
         if (!mongoProcessor.instance) {
             mongoProcessor.instance = this;
             this.connection = null;
+            this.collectionCache = [];
         }
         return mongoProcessor.instance;
     }
@@ -41,6 +42,21 @@ class mongoProcessor {
         return this.connection;
     }
 
+    async getCollection(collectionName) {
+        if (this.collectionCache[collectionName] != null){
+            console.log("collection in cache");
+            return this.collectionCache[collectionName];
+        }
+        else{
+            let conn = await this.connect();
+            let db = conn.db(dbName);
+            let coll = await db.collection(collectionName);
+            this.collectionCache[collectionName] = coll;
+            console.log("collection not in cache");
+            return coll;
+        }
+    }
+
     async closeConnection(){
         try {
             if (this.connection) {
@@ -59,12 +75,9 @@ class mongoProcessor {
     async getEntryByID(Collection, id)
     {
         try {
-            let conn = await this.connect();
-            let db = conn.db(dbName);
-            let coll = await db.collection(Collection);
+            let coll = await this.getCollection(Collection);
             id = new ObjectId(id)
             let user = await coll.findOne({_id: id});
-            await this.closeConnection();
             return user;
         }
         catch (e){
@@ -75,7 +88,24 @@ class mongoProcessor {
         }
     }
 
-    async updateCollectionById(dbName, collection,ids, updateDocument){
+    async updateValueById(Collection, id, updateDocument){
+        //update document is of format:
+        //{ $set: { key : value }, etc, }
+        try{
+            let coll = await this.getCollection(Collection);
+            let result = await coll.updateOne(
+                {_id: id},
+                updateDocument
+            );
+            return result;
+        }
+        catch (e){
+            console.log(e);
+            return null;
+        }
+    }
+
+    async updateCollectionById(collection,ids, updateDocument){
         //Ids is of format:
         // [oid, oid...]
         //update document is of format:
@@ -84,14 +114,11 @@ class mongoProcessor {
         //{$set : {"pages": totalCache._id.pages, etc}
 
         try {
-            let conn = await this.connect();
-            let db = conn.db(dbName);
-            let coll = db.collection(Collection);
+            let coll = await this.getCollection(Collection);
             await coll.updateMany(
                 {_id : {$in : ids}},
                 updateDocument
             );
-            await this.closeConnection();
             return ("successfully updated mongo");
         }
         catch (e) {
@@ -102,12 +129,9 @@ class mongoProcessor {
 
     async createEntryByID(Collection, body) {
         try{
-            let conn = await this.connect();
-            let db = conn.db(dbName);
-            let coll = db.collection(Collection);
+            let coll = await this.getCollection(Collection);
             // body must be json object
             let result = await coll.insertOne(body);
-            await this.closeConnection();
             return result;
         }
         catch (e){
@@ -119,11 +143,9 @@ class mongoProcessor {
 
     async searchCollectionByValue(Collection, keyValue){
         try {
-            let conn = await this.connect();
-            let db = conn.db(dbName);
-            let coll = await db.collection(Collection);
+
+            let coll = await this.getCollection(Collection);
             let user = await coll.findOne(keyValue);
-            await this.closeConnection();
             return user;
         }
         catch (e){
