@@ -1,3 +1,5 @@
+const {query} = require("express");
+const {ObjectId, Collection} = require("mongodb");
 const dbName = process.env.dbName;
 let MongoClient = require('mongodb').MongoClient;
 const connectionString = process.env.uri;
@@ -60,8 +62,8 @@ class mongoProcessor {
             let conn = await this.connect();
             let db = conn.db(dbName);
             let coll = await db.collection(Collection);
+            id = new ObjectId(id)
             let user = await coll.findOne({_id: id});
-            console.log(conn);
             await this.closeConnection();
             return user;
         }
@@ -73,23 +75,65 @@ class mongoProcessor {
         }
     }
 
+    async updateCollectionById(dbName, collection,ids, updateDocument){
+        //Ids is of format:
+        // [oid, oid...]
+        //update document is of format:
+        //{ $set: { "field": <new value>, "field": <new value>, } }
+        //so, for updating a userdata example:
+        //{$set : {"pages": totalCache._id.pages, etc}
+
+        try {
+            let conn = await this.connect();
+            let db = conn.db(dbName);
+            let coll = db.collection(Collection);
+            await coll.updateMany(
+                {_id : {$in : ids}},
+                updateDocument
+            );
+            await this.closeConnection();
+            return ("successfully updated mongo");
+        }
+        catch (e) {
+            console.log(e);
+            return null;
+        }
+    }
+
     async createEntryByID(Collection, body) {
         try{
-            console.log(body);
             let conn = await this.connect();
             let db = conn.db(dbName);
             let coll = db.collection(Collection);
             // body must be json object
             let result = await coll.insertOne(body);
             await this.closeConnection();
-            console.log(body);
             return result;
         }
         catch (e){
             console.log(e);
+            this.connection = null;
             return null;
         }
     }
+
+    async searchCollectionByValue(Collection, keyValue){
+        try {
+            let conn = await this.connect();
+            let db = conn.db(dbName);
+            let coll = await db.collection(Collection);
+            let user = await coll.findOne(keyValue);
+            await this.closeConnection();
+            return user;
+        }
+        catch (e){
+            this.connection = null;
+            console.log(e);
+            console.log("get user data failed");
+            return null;
+        }
+    }
+
 }
 
 

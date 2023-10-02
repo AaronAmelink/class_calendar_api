@@ -11,8 +11,9 @@ const app = express()
 app.use(cors());
 app.use(express.json());
 
-// Load the /mongoHandler routes
+// Load the /index routes
 app.use('/api/user', routes.user);
+app.use('/api/data', routes.data);
 
 // Global error handling
 app.use((err, _req, res, next) => {
