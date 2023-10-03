@@ -12,9 +12,7 @@ class dataProcessor{
         return dataProcessor.instance;
     }
 
-    async updateMongo(){
-        
-    }
+
 
 
 

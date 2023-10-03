@@ -23,7 +23,8 @@
     "node-redis-scan": "^1.3.6",
     "redis": "^4.6.10",
     "superagent": "~0.17.0",
-    "valence": "~1.0.3"
+    "valence": "~1.0.3",
+    "@notionhq/client": "^2.2.7"
   },
   "devDependencies": {
     "eslint": "^8.0.0",
