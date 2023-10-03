@@ -1,25 +1,25 @@
-{"_id":"6515b85b3b439610d0482aec",
+{"_id":"651afc7848b1afff60f583f8",
   "pages":
   [
-    {"page_id":{"$numberInt":"1"},
+    {"page_id":{"$numberInt":"0"},
       "content":[{"type":"text",
         "value":"abcdefg",
-        "content_ID":{"$numberInt":"1"}
+        "content_id":{"$numberInt":"1"}
       },
 
-    {"type":"event",
-      "content_ID":{"$numberInt":"2"},
-      "date":"01/01/2001",
-      "eventName":"Death Date",
-      "linkedPage_ID":
-        {"$numberInt":"-1"},
-      "linkedURL":""}
+        {"type":"event",
+          "content_id":{"$numberInt":"1"},
+          "date":"01/01/2001",
+          "eventName":"Birth Date",
+          "linkedPage_id":
+          {"$numberInt":"1"},
+          "linkedURL":""}
       ]
     }
   ],
   "dates":
   [
-    {"content_ID":{"$numberInt":"2"}}
+    {"content_id":{"$numberInt":"2"}}
   ]
 }
 

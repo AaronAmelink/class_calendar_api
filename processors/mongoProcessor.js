@@ -43,18 +43,24 @@ class mongoProcessor {
     }
 
     async getCollection(collectionName) {
-        if (this.collectionCache[collectionName] != null){
-            console.log("collection in cache");
-            return this.collectionCache[collectionName];
+        try{
+            if (this.collectionCache[collectionName] != null){
+                console.log("collection in cache");
+                return this.collectionCache[collectionName];
+            }
+            else{
+                let conn = await this.connect();
+                let db = conn.db(dbName);
+                let coll = await db.collection(collectionName);
+                this.collectionCache[collectionName] = coll;
+                console.log("collection not in cache");
+                return coll;
+            }
         }
-        else{
-            let conn = await this.connect();
-            let db = conn.db(dbName);
-            let coll = await db.collection(collectionName);
-            this.collectionCache[collectionName] = coll;
-            console.log("collection not in cache");
-            return coll;
+        catch (e){
+            console.log(e);
         }
+
     }
 
     async closeConnection(){
@@ -88,15 +94,12 @@ class mongoProcessor {
         }
     }
 
-    async updateValueById(Collection, id, updateDocument){
-        //update document is of format:
+    async updateOneDoc(Collection, id, updateQuerie, statement){
+        //update Document is of format:
         //{ $set: { key : value }, etc, }
         try{
             let coll = await this.getCollection(Collection);
-            let result = await coll.updateOne(
-                {_id: id},
-                updateDocument
-            );
+            let result = await coll.updateOne(updateQuerie, statement);
             return result;
         }
         catch (e){
