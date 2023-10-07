@@ -78,6 +78,42 @@ class mongoProcessor {
         }
     }
 
+    async addNewDocument(Collection, params) {
+        try {
+            let coll = await this.getCollection(Collection);
+            let result = await coll.insertOne(params);
+            return result;
+        }
+        catch (e){
+            console.log(e);
+            return null;
+        }
+    }
+
+    async removeDocuments(Collection, query){
+        try {
+            let coll = await this.getCollection(Collection);
+            let result = await coll.deleteMany(query);
+            return result;
+        }
+        catch (e){
+            console.log(e);
+            return null;
+        }
+    }
+
+    async getMultipleDocuments(Collection, query, options) {
+        try{
+            let coll = await this.getCollection(Collection);
+            let result = await coll.find(query, options);
+            return result;
+        }
+        catch (e){
+            console.log(e);
+            return null;
+        }
+    }
+
     async getEntryByID(Collection, id)
     {
         try {
@@ -95,8 +131,9 @@ class mongoProcessor {
     }
 
     async updateOneDoc(Collection, id, updateQuerie, statement){
-        //update Document is of format:
+        //statement is a $set
         //{ $set: { key : value }, etc, }
+        //update querie is a check
         try{
             let coll = await this.getCollection(Collection);
             let result = await coll.updateOne(updateQuerie, statement);
@@ -108,7 +145,7 @@ class mongoProcessor {
         }
     }
 
-    async updateCollectionById(collection,ids, updateDocument){
+    async updateCollectionById(collection, ids, updateDocument){
         //Ids is of format:
         // [oid, oid...]
         //update document is of format:
@@ -118,11 +155,11 @@ class mongoProcessor {
 
         try {
             let coll = await this.getCollection(Collection);
-            await coll.updateMany(
+            let result = await coll.updateMany(
                 {_id : {$in : ids}},
                 updateDocument
             );
-            return ("successfully updated mongo");
+            return (result);
         }
         catch (e) {
             console.log(e);
@@ -154,7 +191,7 @@ class mongoProcessor {
         catch (e){
             this.connection = null;
             console.log(e);
-            console.log("get user data failed");
+            console.log("search collection by value failed");
             return null;
         }
     }

@@ -3,6 +3,8 @@ const mp = require("../processors/mongoProcessor");
 const cacheManager = require('../utils/cachemanager');
 const cache = new cacheManager();
 const {ObjectId} = require("mongodb");
+const userDataCollection = "UserDataSampleSet";
+const usersCollection = "Users";
 async function hashPassword(plaintextPassword) {
     return await bcrypt.hash(plaintextPassword, 10);
 }
@@ -19,6 +21,20 @@ class userProcessor{
         return userProcessor.instance;
     }
 
+    async addUserPages(user_id, newPageArray_ids){
+        try{
+            let o_id = new ObjectId(user_id);
+            let querie = {_id : o_id};
+            let update = {$push : {pages : {$each : newPageArray_ids}}};
+            let result = await mp.updateOneDoc(userDataCollection, o_id, querie, update);
+            return result;
+        }
+        catch (e){
+            console.log(e);
+            return null;
+        }
+    }
+
     async getUserData(id) {
         let result;
         try{
@@ -29,9 +45,12 @@ class userProcessor{
             }
             else{
                 console.log("user data not in cache.... adding");
-                let o_id = new ObjectId(id);
-                let mongoResult = await mp.getEntryByID("UserDataSampleSet", o_id);
-                await cache.setCacheEntry('', id, mongoResult);
+                let options = {
+                    // Include only the `pages` and `_id` fields in each returned document
+                    projection: { pages: 1, _id : 1},
+                };
+                let mongoResult = await mp.getEntryByID(userDataCollection, id);
+                await cache.setCacheEntry('', id+"-userData", mongoResult);
                 return mongoResult;
             }
         }
@@ -42,7 +61,7 @@ class userProcessor{
 
     async createUser(email, password, userName){
         let result;
-        let emailTaken = await mp.searchCollectionByValue("Users", {email : email});
+        let emailTaken = await mp.searchCollectionByValue(usersCollection, {email : email});
         if (emailTaken) {
             result = 'email taken - try another';
             return result;
@@ -55,18 +74,17 @@ class userProcessor{
                 password : hashed
             };
 
-            let result = await mp.createEntryByID("Users", user);
+            let result = await mp.createEntryByID(usersCollection, user);
             let userData = {
                 _id : result.insertedId,
                 pages: [],
                 dates: []
             };
             console.log(user);
-            await cache.setCacheEntry("", result.insertedId.toString(), userData);
             await cache.setCacheEntry('', email+"-userLogin", user);
 
             console.log(userData);
-            result = await mp.createEntryByID("UserDataSampleSet", userData);
+            result = await mp.createEntryByID(userDataCollection, userData);
             return result;
         }
 
@@ -87,7 +105,7 @@ class userProcessor{
             }
             else {
                 console.log("user dne exist in cache");
-                user = await mp.searchCollectionByValue("Users", {"email": email});
+                user = await mp.searchCollectionByValue(usersCollection, {"email": email});
                 if (user) {
                     await cache.setCacheEntry('', user.email+"-userLogin", user);
                 }
@@ -98,10 +116,10 @@ class userProcessor{
 
             }
 
-            let casheduserData = await cache.getCacheKeyValue(user._id.toString());
+            let casheduserData = await cache.getCacheKeyValue(user._id.toString()+'-userData');
             if (!casheduserData) {
-                let userData = await mp.getEntryByID("UserDataSampleSet", user._id);
-                await cache.setCacheEntry('', user._id, userData);
+                let userData = await mp.getEntryByID(userDataCollection, user._id);
+                await cache.setCacheEntry('', user._id+'-userData', userData);
                 console.log(userData);
             }
 
