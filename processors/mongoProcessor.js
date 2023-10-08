@@ -118,7 +118,6 @@ class mongoProcessor {
     {
         try {
             let coll = await this.getCollection(Collection);
-            id = new ObjectId(id)
             let user = await coll.findOne({_id: id});
             return user;
         }
