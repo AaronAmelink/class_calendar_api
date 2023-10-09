@@ -1,10 +1,10 @@
 const bcrypt = require("bcryptjs");
 const mp = require("../processors/mongoProcessor");
 const cacheManager = require('../utils/cachemanager');
-const {user} = require("../routes");
 const cache = new cacheManager();
 const usersCollection = "Users";
 const { v4: uuidv4 } = require('uuid');
+const sanitize = require('mongo-sanitize');
 const pp = require('../processors/pageProcessor');
 async function hashPassword(plaintextPassword) {
     return await bcrypt.hash(plaintextPassword, 10);
@@ -27,7 +27,7 @@ class userProcessor{
     async getUserData(id) {
         let result;
         try{
-            result = await cache.getCacheKeyValue(id);
+            result = await cache.getCacheKeyValue(id+"-userData");
             if (result) {
                 console.log("user data in cache")
                 return result;
@@ -35,8 +35,13 @@ class userProcessor{
             else{
                 console.log("user data not in cache.... adding");
                 let mongoResult = await mp.getEntryByID(usersCollection, id);
-                await cache.setCacheEntry('', id+"-userData", mongoResult);
-                return mongoResult;
+                let mapped = {
+                    _id : mongoResult._id,
+                    email : mongoResult.email,
+                    userName : mongoResult.userName
+                }
+                await cache.setCacheEntry('', id+"-userData", mapped);
+                return mapped;
             }
         }
         catch (e){
@@ -44,9 +49,13 @@ class userProcessor{
         }
     }
 
-    async createUser(email, password, userName){
+    async createUser(rEmail, rPassword,rUserName){
+        let email = sanitize(rEmail);
+        let password = sanitize(rPassword);
+        let userName = sanitize(rUserName);
+
         let result;
-        let emailTaken = await mp.searchCollectionByValue(usersCollection, {email : email});
+        let emailTaken = await mp.searchCollectionByQuery(usersCollection, {email : email});
         if (emailTaken) {
             return null;
         }
@@ -59,8 +68,7 @@ class userProcessor{
                 _id : uuidv4()
             };
 
-
-            await pp.addNewPage(user._id, user.userName+"'s page", "root", []);
+            await pp.addNewPage(user._id, user.userName+"'s page", null, []);
             let result = await mp.createEntryByID(usersCollection, user);
             console.log(user);
             await cache.setCacheEntry('', email+"-userData", user);
@@ -76,7 +84,7 @@ class userProcessor{
         let user;
 
         try {
-            user = await mp.searchCollectionByValue(usersCollection, {"email": email});
+            user = await mp.searchCollectionByQuery(usersCollection, {"email": email});
             if (user) {
                 await cache.setCacheEntry('', user.email+"-userData", user);
             }

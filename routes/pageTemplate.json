@@ -1,31 +1,14 @@
-{"id":"651ca4c4b6e66a4cdb9f59ed",
-  "user_id" : "651afc7848b1afff60f583f8",
-  "page_name" : "name1",
-  "properties" : [],
-  "parent_id": "root",
-  "content":
-  [
+{
+  "_id": "0333e42a-6f73-41c5-8772-b653bd2b59ef",
+  "page_name": "john's page",
+  "user_id": "c4442bac-f56e-4b05-8b6e-c1e8a10c1e68",
+  "parent_id": null,
+  "properties": [],
+  "content": [
     {
-      "type":"text",
-      "value":"abcdefg",
-      "content_id":{"$numberInt":"1"}
-    },
-
-    {
-      "type":"event",
-      "content_id":{"$numberInt":"1"},
-      "date":"01/01/2001",
-      "eventName":"Birth Date",
-      "linkedPage_id":
-      {"$numberInt":"2"},
-      "linkedURL":""
-
-    },
-    {
-      "type" : "checkbox",
-      "boxs" : [
-        {"name" :  0}
-      ]
+      "type": "page",
+      "name": "mashas page",
+      "page_id": "0f785f98-5c8a-4947-8fcd-19b4300d555b"
     }
   ]
 }

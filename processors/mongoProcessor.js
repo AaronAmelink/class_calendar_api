@@ -129,7 +129,7 @@ class mongoProcessor {
         }
     }
 
-    async updateOneDoc(Collection, id, updateQuerie, statement){
+    async updateOneDoc(Collection, updateQuerie, statement){
         //statement is a $set
         //{ $set: { key : value }, etc, }
         //update querie is a check
@@ -180,11 +180,11 @@ class mongoProcessor {
         }
     }
 
-    async searchCollectionByValue(Collection, keyValue){
+    async searchCollectionByQuery(Collection, query){
         try {
 
             let coll = await this.getCollection(Collection);
-            let user = await coll.findOne(keyValue);
+            let user = await coll.findOne(query);
             return user;
         }
         catch (e){

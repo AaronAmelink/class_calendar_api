@@ -43,13 +43,6 @@ async function handleAuthenticationToken(req, res, next) {
     '/api/user/login',
     '/api/user/addUser'
   ];
-  let user_id;
-  if (req.body.user_id){
-    user_id = req.body.user_id;
-  }
-  else{
-    user_id = url.split("/").pop();
-  }
 
 
   if (anonymousAllowed.includes(url) === true || !url) {
@@ -57,7 +50,7 @@ async function handleAuthenticationToken(req, res, next) {
   }
   else {
     let parsedSig = await util.parseSignature(req);
-    if (!parsedSig || parsedSig.user_id !== user_id){
+    if (!parsedSig){
       const error = new Error("Unauthorized");
       next(error);
     }
