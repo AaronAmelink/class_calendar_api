@@ -45,7 +45,7 @@ class mongoProcessor {
     async getCollection(collectionName) {
         try{
             if (this.collectionCache[collectionName] != null){
-                console.log("collection in cache");
+                //console.log("collection in cache");
                 return this.collectionCache[collectionName];
             }
             else{
@@ -53,7 +53,7 @@ class mongoProcessor {
                 let db = conn.db(dbName);
                 let coll = await db.collection(collectionName);
                 this.collectionCache[collectionName] = coll;
-                console.log("collection not in cache");
+                //console.log("collection not in cache");
                 return coll;
             }
         }
@@ -102,14 +102,20 @@ class mongoProcessor {
         }
     }
 
-    async getMultipleDocuments(Collection, query, options) {
-        try{
+    async getMultipleDocuments(Collection, query){
+        try {
+            let result = [];
             let coll = await this.getCollection(Collection);
-            let result = await coll.find(query, options);
+            let cursor = coll.find(query);
+            for await (const doc of cursor) {
+                result.push(doc);
+            }
             return result;
         }
         catch (e){
+            this.connection = null;
             console.log(e);
+            console.log("search collection by value failed");
             return null;
         }
     }
@@ -131,7 +137,7 @@ class mongoProcessor {
 
     async updateOneDoc(Collection, updateQuerie, statement){
         //statement is a $set
-        //{ $set: { key : value }, etc, }
+        //{ $set: { key : value , key : value, etc}}
         //update querie is a check
         try{
             let coll = await this.getCollection(Collection);

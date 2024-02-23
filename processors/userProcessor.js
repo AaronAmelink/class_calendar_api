@@ -57,7 +57,7 @@ class userProcessor{
         let result;
         let emailTaken = await mp.searchCollectionByQuery(usersCollection, {email : email});
         if (emailTaken) {
-            return null;
+            return {error: "email taken"};
         }
         else{
             let hashed = await hashPassword(password);
@@ -82,17 +82,15 @@ class userProcessor{
         let result;
         let allowLogin;
         let user;
-
         try {
             user = await mp.searchCollectionByQuery(usersCollection, {"email": email});
             if (user) {
                 await cache.setCacheEntry('', user.email+"-userData", user);
             }
             else{
-                console.log("user is not defined");
+                //console.log("user is not defined");
                 return null;
             }
-
             allowLogin = await comparePassword(password, user.password);
 
             if (allowLogin){

@@ -5,3 +5,4 @@ The core of the idea is the ability to easily create, add, and flesh out class i
 Database stored on mongo-db with redist as a caching service.
 React used for frontend, RESTful api created using express.
 Hosted on google cloud services.
+Learning as I go.

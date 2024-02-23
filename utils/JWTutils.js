@@ -52,6 +52,9 @@ class JWTUtils {
                                 }
                             }
                         }
+                        else{
+                            console.log(err);
+                        }
                     });
                 }
             }

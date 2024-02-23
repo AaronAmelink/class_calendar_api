@@ -5,19 +5,7 @@ const router = express.Router();
 const Utils = require('../utils/Utils');
 const util = new Utils();
 
-router.get("/getUserData", async (req, res) => {
-    let user_id = (req && req.sig && req.sig.parsedSignature) ? req.sig.parsedSignature.user_id : null;
-    if (user_id){
-        let result = await up.getUserData(user_id);
-        res.send(result).status(200);
-    }
-    else{
-        res.send({error: "user_id not found"}).status(200);
-    }
 
-
-
-})
 
 router.post("/login", async (req, res) => {
     //login information
@@ -39,6 +27,7 @@ router.post("/login", async (req, res) => {
             auth: false
         });
     }
+
 
 })
 

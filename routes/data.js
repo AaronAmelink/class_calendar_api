@@ -1,6 +1,7 @@
 const express = require('express');
 const pp = require('../processors/pageProcessor');
 const {user} = require("./index");
+const up = require("../processors/userProcessor");
 const router = express.Router();
 
 router.post("/setPageContent", async (req, res) => {
@@ -13,6 +14,22 @@ router.post("/setPageContent", async (req, res) => {
         res.send({error : "user_id not found"}).status(200);
     }
 
+})
+
+router.post("/updatePage", async (req, res) => {
+    let user_id = (req && req.sig && req.sig.parsedSignature) ? req.sig.parsedSignature.user_id : null;
+    if (user_id){
+        let result = await pp.updatePage(user_id, req.body.pageUpdates);
+        if (result){
+            res.send(result).status(200);
+        }
+        else{
+            res.send({error: "could not save changes"}).status(200);
+        }
+    }
+    else{
+        res.send({error:"user_id not found"}).status(200);
+    }
 })
 
 router.post("/changePageName/", async (req, res) => {
@@ -47,9 +64,26 @@ router.get("/getPage/:page_id", async (req, res) => {
     }
 })
 
+router.get("/getUserData", async (req, res) => {
+    let user_id = (req && req.sig && req.sig.parsedSignature) ? req.sig.parsedSignature.user_id : null;
+    if (user_id){
+        let result = await up.getUserData(user_id);
+        res.send(result).status(200);
+    }
+    else{
+        res.send({error: "user_id not found"}).status(200);
+    }
+
+})
+router.get("/getPages", async (req, res) =>{
+    let user_id = (req && req.sig && req.sig.parsedSignature) ? req.sig.parsedSignature.user_id : null;
+    let result = await pp.getAllPages(user_id);
+    res.send(result).status(200);
+})
+
 router.post("/addNewPage/", async (req, res) =>{
     let user_id = (req && req.sig && req.sig.parsedSignature) ? req.sig.parsedSignature.user_id : null;
-    let result = await pp.addNewPage(user_id, req.body.page_name, req.body.parent_id);
+    let result = await pp.addNewPage(user_id, req.body.page_name, req.body.parent_id, req.body.new_page_id);
     res.send(result).status(200);
 })
 
