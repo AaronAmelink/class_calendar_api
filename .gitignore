@@ -127,3 +127,4 @@ dist
 .pnp.*
 certs.json
 /dockerInstructions.txt
+test.js

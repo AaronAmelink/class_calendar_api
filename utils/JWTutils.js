@@ -1,7 +1,7 @@
 const jsonWebToken = require('jsonwebtoken');
 const sessionDuration = 8*60; // 8 hours
 const renewRange = 5; // 5 minutes
-const certs = require('../certs.json');
+const certsString = process.env.CERT;
 
 class JWTUtils {
     constructor() {
@@ -100,6 +100,7 @@ class JWTUtils {
     }
 
     getJWTCert(name, decodedToken) {
+        let certs = JSON.parse(certsString)
         // filter the certs by name and env
         if (certs && certs.certs) {
             let cert = certs.certs.filter(c => {
