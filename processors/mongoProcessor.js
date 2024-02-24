@@ -1,8 +1,8 @@
 const {query} = require("express");
 const {ObjectId, Collection} = require("mongodb");
-const dbName = process.env.dbName;
+const dbName = process.env.DATABASE_NAME;
 let MongoClient = require('mongodb').MongoClient;
-const connectionString = process.env.uri;
+const connectionString = process.env.DATABASE_URI;
 
 class mongoProcessor {
     constructor() {

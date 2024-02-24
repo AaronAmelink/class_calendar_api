@@ -2,7 +2,7 @@
 const express = require('express');
 const up = require('../processors/userProcessor');
 const router = express.Router();
-const Utils = require('../utils/Utils');
+const Utils = require('../utils/utils');
 const util = new Utils();
 
 

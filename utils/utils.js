@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const jwtUtils = require('./JWTUtils');
+const jwtUtils = require('./JWTutils');
 const jwt = new jwtUtils();
 
 class Utils {

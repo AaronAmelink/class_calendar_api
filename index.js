@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express')
 const cors = require('cors');
-const Utils = require('./utils/Utils');
+const Utils = require('./utils/utils');
 const util = new Utils();
 
 const routes = require('./routes');
