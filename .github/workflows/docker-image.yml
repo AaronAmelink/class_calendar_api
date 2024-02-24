@@ -26,3 +26,8 @@ jobs:
 
     - name: push image
       run: docker push aaronamelink/devwork:classnotes
+
+    - name: Invoke deployment hook for API
+      uses: distributhor/workflow-webhook@v3
+      env:
+        webhook_url: ${{ secrets.WEBHOOK_API_URL }}
