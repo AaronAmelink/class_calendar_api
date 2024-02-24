@@ -54,7 +54,6 @@ class userProcessor{
         let password = sanitize(rPassword);
         let userName = sanitize(rUserName);
 
-        let result;
         let emailTaken = await mp.searchCollectionByQuery(usersCollection, {email : email});
         if (emailTaken) {
             return {error: "email taken"};
@@ -67,12 +66,17 @@ class userProcessor{
                 password : hashed,
                 _id : uuidv4()
             };
+            let newPageID = uuidv4();
 
-            await pp.addNewPage(user._id, user.userName+"'s page", null, []);
+            let pageResult = await pp.addNewPage(user._id, user.userName+"'s page", null, newPageID);
             let result = await mp.createEntryByID(usersCollection, user);
-            console.log(user);
             await cache.setCacheEntry('', email+"-userData", user);
-            return result;
+            if (result.acknowledged === true && result.insertedId){
+                return user;
+            }
+            else{
+                return ({error: "could not register user"});
+            }
         }
 
     }
@@ -84,13 +88,6 @@ class userProcessor{
         let user;
         try {
             user = await mp.searchCollectionByQuery(usersCollection, {"email": email});
-            if (user) {
-                await cache.setCacheEntry('', user.email+"-userData", user);
-            }
-            else{
-                //console.log("user is not defined");
-                return null;
-            }
             allowLogin = await comparePassword(password, user.password);
 
             if (allowLogin){

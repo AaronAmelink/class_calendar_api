@@ -16,6 +16,10 @@ router.post("/setPageContent", async (req, res) => {
 
 })
 
+router.get("/ping", async (req, res) => {
+        res.send().status(200);
+})
+
 router.post("/updatePage", async (req, res) => {
     let user_id = (req && req.sig && req.sig.parsedSignature) ? req.sig.parsedSignature.user_id : null;
     if (user_id){

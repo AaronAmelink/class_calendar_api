@@ -1,5 +1,4 @@
-FROM node:20.11.0-bullseye
-
+FROM node:bookworm-slim
 
 RUN useradd -ms /bin/bash classnotes
 

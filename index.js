@@ -42,7 +42,8 @@ async function handleAuthenticationToken(req, res, next) {
   let url = req.url;
   let anonymousAllowed = [
     '/api/user/login',
-    '/api/user/addUser'
+    '/api/user/addUser',
+    '/api/data/ping'
   ];
 
 
