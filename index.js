@@ -32,7 +32,7 @@ app.use('/api/notion', routes.notion);
 //   res.status(500).send("Uh oh! An unexpected error occured.")
 // })
 
-app.use((req, res, next) => {
+app.use((req, res) => {
   const status = 404; //404 not found
   res.status(status);
   res.send({});
@@ -64,12 +64,12 @@ async function handleAuthenticationToken(req, res, next) {
   }
 }
 
-app.use((req, res, next) => {
+app.use((req, res) => {
   const status = 404; //404 not found
   res.status(status);
   res.send({});
 });
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   let body = {error: err};
   let status = 500;
   if (err && err.message === 'Unauthorized') {

@@ -1,5 +1,4 @@
-const {query} = require("express");
-const {ObjectId, Collection} = require("mongodb");
+const { Collection } = require("mongodb");
 const dbName = process.env.DATABASE_NAME;
 let MongoClient = require('mongodb').MongoClient;
 const connectionString = process.env.DATABASE_URI;
@@ -107,8 +106,8 @@ class mongoProcessor {
             let result = [];
             let coll = await this.getCollection(Collection);
             let cursor = coll.find(query);
-            for await (const doc of cursor) {
-                result.push(doc);
+            for (const doc of cursor) {
+                await result.push(doc);
             }
             return result;
         }

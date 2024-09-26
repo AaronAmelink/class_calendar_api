@@ -1,5 +1,3 @@
-const dp = require('./pageProcessor');
-const up = require("../processors/userProcessor");
 const { Client } = require("@notionhq/client");
 const notion = new Client({ auth: process.env.NOTION_KEY });
 const pageId = process.env.NOTION_PAGE_ID;
@@ -31,6 +29,7 @@ class notionProcessor {
                 }
 
             })
+            return result;
         }
         catch (e){
             console.log(e);

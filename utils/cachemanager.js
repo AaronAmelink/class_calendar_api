@@ -1,11 +1,9 @@
 const cacheManager = require('cache-manager');
 const redisStore = require('cache-manager-redis-store');
-const {cache} = require("express/lib/application");
 
 const redis_url = process.env.REDIS_URl;
 const redis_port = process.env.REDIS_PORT;
 const redis_pass = process.env.REDIS_PASS;
-const redis_tls = process.env.REDIS_TLS;
 
 let redisConfig = {
     store : redisStore,
@@ -32,7 +30,7 @@ if (redisClient) {
 }
 
 class CacheManager {
-    constructor(ttl) {
+    constructor() {
     }
 
     getCacheStore() {

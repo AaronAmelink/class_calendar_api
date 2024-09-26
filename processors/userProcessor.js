@@ -1,7 +1,5 @@
 const bcrypt = require("bcryptjs");
 const mp = require("../processors/mongoProcessor");
-const cacheManager = require('../utils/cachemanager');
-const cache = new cacheManager();
 const usersCollection = "Users";
 const { v4: uuidv4 } = require('uuid');
 const sanitize = require('mongo-sanitize');
@@ -25,24 +23,15 @@ class userProcessor{
 
 
     async getUserData(id) {
-        let result;
         try{
-            result = await cache.getCacheKeyValue(id+"-userData");
-            if (result) {
-                console.log("user data in cache")
-                return result;
+            let mongoResult = await mp.getEntryByID(usersCollection, id);
+            let mapped = {
+                _id : mongoResult._id,
+                email : mongoResult.email,
+                userName : mongoResult.userName
             }
-            else{
-                console.log("user data not in cache.... adding");
-                let mongoResult = await mp.getEntryByID(usersCollection, id);
-                let mapped = {
-                    _id : mongoResult._id,
-                    email : mongoResult.email,
-                    userName : mongoResult.userName
-                }
-                await cache.setCacheEntry('', id+"-userData", mapped);
-                return mapped;
-            }
+            return mapped;
+            
         }
         catch (e){
             console.log(e);
@@ -68,9 +57,8 @@ class userProcessor{
             };
             let newPageID = uuidv4();
 
-            let pageResult = await pp.addNewPage(user._id, user.userName+"'s page", null, newPageID);
+            await pp.addNewPage(user._id, user.userName+"'s page", null, newPageID);
             let result = await mp.createEntryByID(usersCollection, user);
-            await cache.setCacheEntry('', email+"-userData", user);
             if (result.acknowledged === true && result.insertedId){
                 return user;
             }
@@ -86,8 +74,8 @@ class userProcessor{
         let result;
         let allowLogin;
         let user;
-        try {
-            user = await mp.searchCollectionByQuery(usersCollection, {"email": email});
+        user = await mp.searchCollectionByQuery(usersCollection, {"email": email});
+        if (user) {
             allowLogin = await comparePassword(password, user.password);
 
             if (allowLogin){
@@ -97,14 +85,14 @@ class userProcessor{
                 result = null;
             }
             return result;
+        } else {
+            return null;
         }
-        catch(e){
-            throw e;
-        }
-        //console.log(result);
     }
-
+        //console.log(result);
 }
+
+
 
 
 const instance = new userProcessor();

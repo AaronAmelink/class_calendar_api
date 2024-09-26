@@ -1,7 +1,6 @@
 const mp = require("../processors/mongoProcessor");
-const cacheManager = require('../utils/cachemanager');
 const pageCollection = "pages";
-const { v4: uuidv4 } = require('uuid');
+const classCollection = "classes";
 const sanitize = require('mongo-sanitize');
 const {updatePage} = require("@notionhq/client/build/src/api-endpoints");
 class pageProcessor {
@@ -11,6 +10,20 @@ class pageProcessor {
 
         }
         return pageProcessor.instance;
+    }
+
+    async updateClass(rawUser_id, rawClass_id, rawUpdates){
+        let user_id = sanitize(rawUser_id);
+        let updates = sanitize(rawUpdates);
+        try{
+
+            //.log(updates);
+            await this.updatePage(user_id, updates);
+        }
+        catch (e){
+            console.log(e);
+            return {"error" : "error submitting page update"};
+        }
     }
 
     async updatePage(rawUser_id, rawUpdates){
@@ -104,6 +117,21 @@ class pageProcessor {
         try {
             let query = {user_id : user_id, _id: page_id};
             let result = await mp.searchCollectionByQuery(pageCollection, query);
+            if (result) {
+                console.log(result);
+                return result;
+            }
+        }
+        catch (e){
+            console.log(e.toString());
+            return null;
+        }
+    }
+
+    async getChildPages(user_id, parent_id){
+        try {
+            let query = {user_id: user_id, parent_id: parent_id}
+            let result = await mp.getMultipleDocuments(pageCollection, query);
             return result;
         }
         catch (e){
@@ -202,6 +230,31 @@ class pageProcessor {
         }
     }
 
+    async addNewClass(user_id, newClass){
+        let className = sanitize(newClass.className);
+        try{
+            let resultAddPage = await mp.addNewDocument(pageCollection,
+                {
+                    page_name: className,
+                    user_id: user_id,
+                    content: [{type:"text",value:" ",id:0}],
+                    parent_id: null,
+                    _id: newClass.id,
+                    properties : Object.keys(newClass).map((key) => {
+                        if (key !== "id" && key !== "className"){
+                            return {key : key, value : newClass[key]}
+                        }
+                    })
+                });
+
+            let resultAddClass = await mp.addNewDocument(classCollection, newClass);
+            return {...resultAddClass, ...resultAddPage};
+        }
+        catch (e){
+            console.log(e);
+            return null;
+        }
+    }
 
 
 
